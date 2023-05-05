@@ -2,15 +2,16 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-
 describe("OwnedContract", function () {
+    let _charityAddress: string;
     async function deployOwnedContract() {
 
         // Contracts are deployed using the first signer/account by default
-        const [owner, otherAccount] = await ethers.getSigners();
+        const [owner, otherAccount, charityAddress] = await ethers.getSigners();
 
+        _charityAddress = charityAddress.address;
         const OwnedContract = await ethers.getContractFactory("OwnedContract");
-        const ownedContract = await OwnedContract.deploy();
+        const ownedContract = await OwnedContract.deploy(charityAddress.address);
 
         return { ownedContract, owner, otherAccount };
     }
@@ -32,6 +33,7 @@ describe("OwnedContract", function () {
             const balance = await ethers.provider.getBalance(ownedContract.address);
             expect(balance).to.equal(value, "expected the ether to be received");
         });
+
         it('Should receive tips for owner', async () => {
             const { ownedContract, owner, otherAccount } = await loadFixture(deployOwnedContract);
             const balanceBefore = await ethers.provider.getBalance(owner.address);
@@ -43,6 +45,17 @@ describe("OwnedContract", function () {
         it('Should reject on tips from owner to himself', async () => {
             const { ownedContract, owner } = await loadFixture(deployOwnedContract);
             await expect(ownedContract.connect(owner).tip({ value })).to.be.revertedWithoutReason()
+        });
+
+        it('Should donate to charity', async () => {
+            const { ownedContract, owner, otherAccount } = await loadFixture(deployOwnedContract);
+            await otherAccount.sendTransaction({ to: ownedContract.address, value });
+            await owner.sendTransaction({ to: ownedContract.address, value });
+            const balanceBefore = await ethers.provider.getBalance(_charityAddress);
+            await ownedContract.donate();
+            const balanceAfter = await ethers.provider.getBalance(_charityAddress);
+            const expectedBalance = value.add(value)
+            expect(balanceAfter.sub(balanceBefore)).to.equal(expectedBalance, "expected the ether to be received");
         });
     });
 
