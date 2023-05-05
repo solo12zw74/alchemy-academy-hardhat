@@ -7,4 +7,6 @@ contract OwnedContract {
     constructor() {
         owner = msg.sender;
     }
+
+    receive() external payable {}
 }

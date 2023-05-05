@@ -21,5 +21,13 @@ describe("OwnedContract", function () {
 
             expect(await ownedContract.owner()).to.equal(owner.address);
         });
+
+        it('Should receive the ether', async () => {
+            const { ownedContract, owner } = await loadFixture(deployOwnedContract);
+            const value = ethers.utils.parseEther("1");
+            await owner.sendTransaction({ to: ownedContract.address, value });
+            const balance = await ethers.provider.getBalance(ownedContract.address);
+            expect(balance).to.equal(value, "expected the ether to be received");
+        });
     });
 });
