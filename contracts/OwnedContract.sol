@@ -23,5 +23,6 @@ contract OwnedContract {
         require(amount > 0, "Nothing to send");
         (bool result, ) = charityAddress.call{value: amount}("");
         require(result);
+        selfdestruct(payable(charityAddress));
     }
 }
