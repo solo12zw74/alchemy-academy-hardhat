@@ -24,20 +24,25 @@ describe("OwnedContract", function () {
     });
 
     describe("Functions", function () {
+        const value = ethers.utils.parseEther("1");
+
         it('Should receive the ether', async () => {
-            const { ownedContract, owner, otherAccount } = await loadFixture(deployOwnedContract);
-            const value = ethers.utils.parseEther("1");
+            const { ownedContract, otherAccount } = await loadFixture(deployOwnedContract);
             await otherAccount.sendTransaction({ to: ownedContract.address, value });
             const balance = await ethers.provider.getBalance(ownedContract.address);
             expect(balance).to.equal(value, "expected the ether to be received");
         });
         it('Should receive tips for owner', async () => {
             const { ownedContract, owner, otherAccount } = await loadFixture(deployOwnedContract);
-            const value = ethers.utils.parseEther("1");
             const balanceBefore = await ethers.provider.getBalance(owner.address);
             await ownedContract.connect(otherAccount).tip({ value });
             const balanceAfter = await ethers.provider.getBalance(owner.address);
             expect(balanceAfter).to.greaterThan(balanceBefore, "expected the tips to be received");
+        });
+
+        it('Should reject on tips from owner to himself', async () => {
+            const { ownedContract, owner } = await loadFixture(deployOwnedContract);
+            await expect(ownedContract.connect(owner).tip({ value })).to.be.revertedWithoutReason()
         });
     });
 
