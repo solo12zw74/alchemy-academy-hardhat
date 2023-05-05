@@ -9,4 +9,10 @@ contract OwnedContract {
     }
 
     receive() external payable {}
+
+    function tip() external payable {
+        require(msg.sender != owner);
+        (bool result, ) = owner.call{value: msg.value}("");
+        require(result);
+    }
 }
