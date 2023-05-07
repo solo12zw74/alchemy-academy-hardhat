@@ -15,6 +15,7 @@ describe("DepositContract", function () {
 
         return { depositContract, owner, otherAccount };
     }
+
     describe("Deployment", function () {
         it("Should revert if deposit is less then required", async function () {
             const DepositContract = await ethers.getContractFactory("DepositContract");
@@ -30,6 +31,21 @@ describe("DepositContract", function () {
         it("Should deploy well if deposit is big enough", async function () {
             const { depositContract } = await loadFixture(deployDepositContract);
             expect((await depositContract.depositAmount()).toString()).to.be.equal(ONE_ETHER.toString());
+        });
+    });
+    describe("Withdrawals", function () {
+        it("Should fail for non-owner", async function () {
+            const { depositContract, otherAccount } = await loadFixture(deployDepositContract);
+
+            await expect(depositContract.connect(otherAccount).withdraw()).to.be.revertedWith("Only owner can withdraw");
+        });
+
+        it("Should works well for owner", async function () {
+            const { depositContract, owner } = await loadFixture(deployDepositContract);
+            const beforeWithdraw = await owner.getBalance();
+            await depositContract.withdraw();
+            const afterWithdraw = await owner.getBalance();
+            expect(beforeWithdraw).to.be.lessThan(afterWithdraw);
         });
     });
 });
