@@ -15,11 +15,15 @@ contract DepositContract {
         owner = msg.sender;
     }
 
-    function withdraw() external {
-        require(owner == msg.sender, "Only owner can withdraw");
+    function withdraw() external onlyOwner {
         uint amount = address(this).balance;
         require(amount > 0, "Nothing to withdraw");
         (bool isSuccess, ) = owner.call{value: amount}("");
         require(isSuccess);
+    }
+
+    modifier onlyOwner() {
+        require(owner == msg.sender, "Only owner can withdraw");
+        _;
     }
 }
