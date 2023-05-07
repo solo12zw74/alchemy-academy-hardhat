@@ -10,8 +10,11 @@ describe("DepositContract", function () {
         // Contracts are deployed using the first signer/account by default
         const [owner, otherAccount] = await ethers.getSigners();
 
+        const AccountRegistry = await ethers.getContractFactory("AccountRegistry");
+        const accountRegistry = await AccountRegistry.deploy();
+
         const DepositContract = await ethers.getContractFactory("DepositContract");
-        const depositContract = await DepositContract.deploy({ value: ONE_ETHER });
+        const depositContract = await DepositContract.deploy(accountRegistry.address, { value: ONE_ETHER });
 
         return { depositContract, owner, otherAccount };
     }
