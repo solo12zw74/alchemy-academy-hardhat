@@ -26,5 +26,32 @@ describe("PracticeSolidity", function () {
                 });
             });
         });
+        describe("tick", async function () {
+            const { practiceSolidity } = await loadFixture(deployPracticeSolidity);
+
+            describe('after 9 ticks', () => {
+                before(async () => {
+                    for (let i = 0; i < 9; i++) {
+                        await practiceSolidity.tick();
+                    }
+                });
+
+                it('should still exist', async () => {
+                    const bytecode = await ethers.provider.getCode(practiceSolidity.address);
+                    expect(bytecode).to.not.equal("0x", "Contract does not exist after 9 ticks!");
+                });
+            });
+
+            describe('after the tenth tick', () => {
+                before(async () => {
+                    await practiceSolidity.tick();
+                });
+
+                it('should not have any code', async () => {
+                    const bytecode = await ethers.provider.getCode(practiceSolidity.address);
+                    expect(bytecode).to.equal("0x");
+                });
+            });
+        });
     });
 });
