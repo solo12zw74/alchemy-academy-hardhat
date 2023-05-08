@@ -24,7 +24,7 @@ describe("DepositContract", function () {
             const DepositContract = await ethers.getContractFactory("DepositContract");
 
             try {
-                await DepositContract.deploy({ value: 0 });
+                await DepositContract.deploy("", { value: 0 });
             } catch (error) {
                 expect(error).to.be.revertedWith("Amont must be greater than or equal of 1 ether");
             }
