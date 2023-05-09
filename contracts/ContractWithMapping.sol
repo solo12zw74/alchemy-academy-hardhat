@@ -8,4 +8,8 @@ contract ContractWithMapping {
         require(members[memberAddress] == false);
         members[memberAddress] = true;
     }
+
+    function isMember(address memberAddress) public view returns (bool) {
+        return members[memberAddress];
+    }
 }
