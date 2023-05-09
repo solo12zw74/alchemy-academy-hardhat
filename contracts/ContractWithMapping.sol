@@ -2,6 +2,13 @@
 pragma solidity ^0.8.9;
 
 contract ContractWithMapping {
+    struct User {
+        uint balance;
+        bool isActive;
+    }
+
+    mapping(address => User) public users;
+
     mapping(address => bool) public members;
 
     function addMember(address memberAddress) external {
@@ -15,5 +22,11 @@ contract ContractWithMapping {
 
     function removeMember(address memberAddress) external {
         members[memberAddress] = false;
+    }
+
+    function createUser() external {
+        require(users[msg.sender].isActive == false);
+        User memory user = User({balance: 100, isActive: true});
+        users[msg.sender] = user;
     }
 }

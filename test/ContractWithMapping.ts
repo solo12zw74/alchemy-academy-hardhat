@@ -62,4 +62,21 @@ describe("ContractWithMapping", function () {
             expect(await contractWithMapping.isMember(otherAccount.address)).to.be.false;
         });
     });
+
+    describe("createuser", function () {
+        it("Should add a new user to the users mapping", async () => {
+            const { contractWithMapping, owner } = await loadFixture(deployContractWithMapping);
+            await contractWithMapping.createUser();
+
+            expect((await contractWithMapping.users(owner.address)).balance).to.be.equal(100);
+            expect((await contractWithMapping.users(owner.address)).isActive).to.be.true;
+        });
+
+        it("Should not create user twice for the same account", async () => {
+            const { contractWithMapping, owner } = await loadFixture(deployContractWithMapping);
+            await contractWithMapping.createUser();
+
+            await expect(contractWithMapping.createUser()).to.be.rejected;
+        });
+    });
 });
