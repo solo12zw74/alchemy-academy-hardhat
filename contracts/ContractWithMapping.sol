@@ -9,7 +9,11 @@ contract ContractWithMapping {
         members[memberAddress] = true;
     }
 
-    function isMember(address memberAddress) public view returns (bool) {
+    function isMember(address memberAddress) external view returns (bool) {
         return members[memberAddress];
+    }
+
+    function removeMember(address memberAddress) external {
+        members[memberAddress] = false;
     }
 }

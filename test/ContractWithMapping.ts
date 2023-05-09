@@ -35,4 +35,31 @@ describe("ContractWithMapping", function () {
             expect(await contractWithMapping.isMember(otherAccount.address)).to.be.false;
         });
     });
+
+    describe("removeMember", function () {
+        it("Should remove the member", async () => {
+            const { contractWithMapping, owner } = await loadFixture(deployContractWithMapping);
+            await contractWithMapping.addMember(owner.address);
+            await contractWithMapping.removeMember(owner.address);
+
+            expect(await contractWithMapping.isMember(owner.address)).to.be.false;
+        });
+
+        it("Should remove the correct member", async () => {
+            const { contractWithMapping, owner, otherAccount } = await loadFixture(deployContractWithMapping);
+            await contractWithMapping.addMember(owner.address);
+            await contractWithMapping.addMember(otherAccount.address);
+            await contractWithMapping.removeMember(owner.address);
+
+            expect(await contractWithMapping.isMember(owner.address)).to.be.false;
+            expect(await contractWithMapping.isMember(otherAccount.address)).to.be.true;
+        });
+
+        it("Should be false for added memeber", async () => {
+            const { contractWithMapping, owner, otherAccount } = await loadFixture(deployContractWithMapping);
+            await contractWithMapping.addMember(owner.address);
+
+            expect(await contractWithMapping.isMember(otherAccount.address)).to.be.false;
+        });
+    });
 });
