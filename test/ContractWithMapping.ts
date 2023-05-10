@@ -63,7 +63,7 @@ describe("ContractWithMapping", function () {
         });
     });
 
-    describe("createuser", function () {
+    describe("createUser", function () {
         it("Should add a new user to the users mapping", async () => {
             const { contractWithMapping, owner } = await loadFixture(deployContractWithMapping);
             await contractWithMapping.createUser();
@@ -77,6 +77,39 @@ describe("ContractWithMapping", function () {
             await contractWithMapping.createUser();
 
             await expect(contractWithMapping.createUser()).to.be.rejected;
+        });
+    });
+
+    describe("transfer", function () {
+        it("Should change the balance for sender and recepient", async () => {
+            const { contractWithMapping, owner, otherAccount } = await loadFixture(deployContractWithMapping);
+            await contractWithMapping.createUser();
+            await contractWithMapping.connect(otherAccount).createUser();
+
+            await contractWithMapping.transfer(otherAccount.address, 37);
+
+            expect((await contractWithMapping.users(owner.address)).balance).to.be.equal(63);
+            expect((await contractWithMapping.users(otherAccount.address)).balance).to.be.equal(137);
+        });
+
+        it("Should reject transactiont for non-existing sender", async () => {
+            const { contractWithMapping, otherAccount } = await loadFixture(deployContractWithMapping);
+            await contractWithMapping.connect(otherAccount).createUser();
+            await expect(contractWithMapping.transfer(otherAccount.address, 37)).to.be.rejected;
+        });
+
+        it("Should reject transactiont for non-existing recepient", async () => {
+            const { contractWithMapping, otherAccount } = await loadFixture(deployContractWithMapping);
+            await contractWithMapping.createUser();
+            await expect(contractWithMapping.transfer(otherAccount.address, 37)).to.be.rejected;
+        });
+
+        it("Should reject transactiont for insufficient funds", async () => {
+            const { contractWithMapping, owner, otherAccount } = await loadFixture(deployContractWithMapping);
+            await contractWithMapping.createUser();
+            await contractWithMapping.connect(otherAccount).createUser();
+            await expect(contractWithMapping.transfer(otherAccount.address, 1000)).to.be.rejected;
+
         });
     });
 });

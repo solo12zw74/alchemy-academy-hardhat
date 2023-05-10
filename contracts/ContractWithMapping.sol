@@ -29,4 +29,16 @@ contract ContractWithMapping {
         User memory user = User({balance: 100, isActive: true});
         users[msg.sender] = user;
     }
+
+    function transfer(address recepientAddress, uint amount) external {
+        User storage sender = users[msg.sender];
+        User storage recepient = users[recepientAddress];
+
+        require(sender.isActive == true);
+        require(recepient.isActive == true);
+        require(sender.balance >= amount);
+        recepient.balance += amount;
+        sender.balance -= amount;
+        require(sender.balance >= 0);
+    }
 }
