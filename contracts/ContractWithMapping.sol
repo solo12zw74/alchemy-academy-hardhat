@@ -7,6 +7,14 @@ contract ContractWithMapping {
         bool isActive;
     }
 
+    enum ConnectionTypes {
+        Unacquainted,
+        Friend,
+        Family
+    }
+
+    mapping(address => mapping(address => ConnectionTypes)) public connections;
+
     mapping(address => User) public users;
 
     mapping(address => bool) public members;
@@ -40,5 +48,12 @@ contract ContractWithMapping {
         recepient.balance += amount;
         sender.balance -= amount;
         require(sender.balance >= 0);
+    }
+
+    function connectWith(
+        address other,
+        ConnectionTypes connectionType
+    ) external {
+        connections[msg.sender][other] = connectionType;
     }
 }
