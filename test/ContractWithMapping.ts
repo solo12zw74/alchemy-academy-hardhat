@@ -3,7 +3,6 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { ContractWithMapping } from "../typechain-types";
 import { JsonRpcSigner } from "@ethersproject/providers";
-import { PromiseOrValue } from "../typechain-types/common";
 
 describe("ContractWithMapping", function () {
     async function deployContractWithMapping() {
@@ -159,10 +158,17 @@ describe("ContractWithMapping", function () {
         });
 
         describe('after connecting from one side', () => {
+            var contractWithMapping: ContractWithMapping;
+            let owner: JsonRpcSigner;
+            let otherAccount: JsonRpcSigner;
+
+            this.beforeAll(async () => {
+                const { otherAccount } = await loadFixture(deployContractWithMapping);
+                await contractWithMapping.connect(owner).connectWith(otherAccount.address, TYPES.Family);
+
+            });
 
             it('should have a Family connection type from s1 => s2', async () => {
-                const { contractWithMapping, owner, otherAccount } = await loadFixture(deployContractWithMapping);
-                await contractWithMapping.connect(owner).connectWith(otherAccount.address, TYPES.Family);
                 expect(await getConnection(contractWithMapping, owner.address, otherAccount.address)).to.equal(TYPES.Family);
             });
 
