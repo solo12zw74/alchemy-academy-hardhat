@@ -17,23 +17,40 @@ describe("Collectible", function () {
         expect(collectibleOwnner).is.to.equal(owner.address);
     });
 
-    it("Transfer collectible to other address", async function () {
-        const { collectible, owner, otherAccount } = await loadFixture(deployCollectible);
-        await collectible.transfer(otherAccount.address);
-        const collectibleOwner = await collectible.owner();
-        expect(collectibleOwner).is.to.equal(otherAccount.address);
+    describe("transfer", function () {
+        it("Transfer collectible to other address", async function () {
+            const { collectible, owner, otherAccount } = await loadFixture(deployCollectible);
+            await collectible.transfer(otherAccount.address);
+            const collectibleOwner = await collectible.owner();
+            expect(collectibleOwner).is.to.equal(otherAccount.address);
+        });
+
+        it("Doesn't allow to transfer twice", async function () {
+            const { collectible, otherAccount } = await loadFixture(deployCollectible);
+            await collectible.transfer(otherAccount.address);
+            await expect(collectible.transfer(otherAccount.address)).is.rejected;
+        });
+
+        it("Emit a Transfer event", async function () {
+            const { collectible, owner, otherAccount } = await loadFixture(deployCollectible);
+            await expect(collectible.transfer(otherAccount.address)).to.emit(collectible, "Transfer")
+                .withArgs(owner.address, otherAccount.address);
+        });
     });
 
-    it("Doesn't allow to transfer twice", async function () {
-        const { collectible, otherAccount } = await loadFixture(deployCollectible);
-        await collectible.transfer(otherAccount.address);
-        await expect(collectible.transfer(otherAccount.address)).is.rejected;
-    });
+    describe("markPrice", function () {
+        it("Should not allow markPrice for non owner", async function () {
+            const { collectible, otherAccount } = await loadFixture(deployCollectible);
+            await expect(collectible.connect(otherAccount.address).markPrice(1000))
+                .is
+                .rejected;
+        });
 
-    it("Emit a Transfer event", async function () {
-        const { collectible, owner, otherAccount } = await loadFixture(deployCollectible);
-        await expect(collectible.transfer(otherAccount.address)).to.emit(collectible, "Transfer")
-            .withArgs(owner.address, otherAccount.address);
-
+        it("Should emit ForSale event", async function () {
+            const { collectible } = await loadFixture(deployCollectible);
+            await expect(collectible.markPrice(1000))
+                .to
+                .emit(collectible, "ForSale");
+        });
     });
 });
