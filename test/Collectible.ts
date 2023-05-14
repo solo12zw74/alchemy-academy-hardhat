@@ -53,4 +53,31 @@ describe("Collectible", function () {
                 .emit(collectible, "ForSale");
         });
     });
+
+    describe("Purchase", function () {
+        it("Should reject if not for sale", async function () {
+            const { collectible, otherAccount } = await loadFixture(deployCollectible);
+            await expect(collectible.connect(otherAccount).purchase()).to.rejected;
+        });
+
+        it("Should reject if price is lower than marked", async function () {
+            const { collectible, owner, otherAccount } = await loadFixture(deployCollectible);
+            await collectible.markPrice(ethers.utils.parseEther("2"));
+            await expect(collectible
+                .purchase({ value: ethers.utils.parseEther("1") })).to.be.rejected;
+        });
+
+        it("Balances should change", async function () {
+            const { collectible, owner, otherAccount } = await loadFixture(deployCollectible);
+            await collectible.markPrice(ethers.utils.parseEther("1"));
+            const ownerBalanceBefore = await owner.getBalance();
+            const buyerBalanceBefore = await otherAccount.getBalance();
+            await collectible.connect(otherAccount).purchase({ value: ethers.utils.parseEther("2") });
+            const ownerBalanceAfter = await owner.getBalance();
+            const buyerBalanceAfter = await otherAccount.getBalance();
+
+            expect(ownerBalanceBefore).to.be.lessThan(ownerBalanceAfter);
+            expect(buyerBalanceBefore).to.be.greaterThan(buyerBalanceAfter);
+        });
+    });
 });
