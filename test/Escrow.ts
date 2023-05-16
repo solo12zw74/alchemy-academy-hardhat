@@ -14,14 +14,8 @@ async function deployEscrow() {
 }
 
 describe("Escrow", function () {
-    it("Contains required parties", async () => {
-        const { escrow } = await loadFixture(deployEscrow);
-        expect(escrow).has.property("depositor");
-        expect(escrow).has.property("beneficiary");
-        expect(escrow).has.property("arbiter");
-    });
 
-    describe("Assign all addresses correctly", () => {
+    describe("Construction", () => {
         let _escrow: Escrow;
         let _depositor: SignerWithAddress;
         let _arbiter: SignerWithAddress;
@@ -35,16 +29,10 @@ describe("Escrow", function () {
             _beneficiary = beneficiary;
         });
 
-        it("should have creator as depositer", async () => {
-            expect(await _escrow.depositor()).is.to.eq(_depositor.address);
-        });
-
-        it("should have correct arbiter", async () => {
-            expect(await _escrow.arbiter()).is.to.eq(_arbiter.address);
-        });
-
-        it("should have correct beneficiary", async () => {
-            expect(await _escrow.beneficiary()).is.to.eq(_beneficiary.address);
+        it("Contains required parties", async () => {
+            expect(_escrow).has.property("depositor");
+            expect(_escrow).has.property("beneficiary");
+            expect(_escrow).has.property("arbiter");
         });
 
         it("should deposit on deploy", async () => {
@@ -52,9 +40,54 @@ describe("Escrow", function () {
             expect(balance).is.to.eq(initialDeposit);
         });
 
+        describe("Assign all addresses correctly", () => {
+            it("should have creator as depositer", async () => {
+                expect(await _escrow.depositor()).is.to.eq(_depositor.address);
+            });
+
+            it("should have correct arbiter", async () => {
+                expect(await _escrow.arbiter()).is.to.eq(_arbiter.address);
+            });
+
+            it("should have correct beneficiary", async () => {
+                expect(await _escrow.beneficiary()).is.to.eq(_beneficiary.address);
+            });
+        });
     });
 
-    it("Has all addresses assigned afer deploy", async () => {
+    describe("Approval", () => {
+        let _escrow: Escrow;
+        let _depositor: SignerWithAddress;
+        let _arbiter: SignerWithAddress;
+        let _beneficiary: SignerWithAddress;
 
+        beforeEach(async () => {
+            const { escrow, depositor, arbiter, beneficiary } = await loadFixture(deployEscrow);
+            _escrow = escrow;
+            _depositor = depositor;
+            _arbiter = arbiter;
+            _beneficiary = beneficiary;
+        });
+
+        it("should reqject for wrong approver", async () => {
+            await expect(_escrow.approve()).is.rejected;
+        });
+
+        it("should reqject if already approved", async () => {
+            await _escrow.connect(_arbiter).approve();
+            await expect(_escrow.connect(_arbiter).approve()).is.rejected;
+        });
+
+
+        it("should approve correctly", async () => {
+            const beneficiaryBalanceBefore = await ethers.provider.getBalance(_beneficiary.address);
+            await _escrow.connect(_arbiter).approve();
+            const contractBalance = await ethers.provider.getBalance(_escrow.address);
+            const beneficiaryBalanceAfter = await ethers.provider.getBalance(_beneficiary.address);
+
+            expect(contractBalance).is.to.eq(0);
+            expect(beneficiaryBalanceAfter).is.greaterThan(beneficiaryBalanceBefore);
+
+        });
     });
 });

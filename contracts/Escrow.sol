@@ -5,10 +5,21 @@ contract Escrow {
     address public depositor;
     address public beneficiary;
     address public arbiter;
+    bool public isApproved;
 
     constructor(address _arbiter, address _beneficiary) payable {
         depositor = msg.sender;
         arbiter = _arbiter;
         beneficiary = _beneficiary;
+    }
+
+    function approve() external {
+        require(msg.sender == arbiter);
+        require(!isApproved);
+        uint balance = address(this).balance;
+        require(balance > 0);
+        (bool sent, ) = beneficiary.call{value: balance}("");
+        require(sent);
+        isApproved = true;
     }
 }
