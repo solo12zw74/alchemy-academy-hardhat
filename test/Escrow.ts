@@ -4,11 +4,12 @@ import { ethers } from "hardhat";
 import { Escrow } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
+const initialDeposit = ethers.utils.parseEther("3.1");
 async function deployEscrow() {
     const Escrow = await ethers.getContractFactory("Escrow");
     const [depositor, arbiter, beneficiary] = await ethers.getSigners();
 
-    const escrow = await Escrow.deploy(arbiter.address, beneficiary.address);
+    const escrow = await Escrow.deploy(arbiter.address, beneficiary.address, { value: initialDeposit });
     return { escrow, depositor, arbiter, beneficiary };
 }
 
@@ -25,6 +26,7 @@ describe("Escrow", function () {
         let _depositor: SignerWithAddress;
         let _arbiter: SignerWithAddress;
         let _beneficiary: SignerWithAddress;
+
         before(async () => {
             const { escrow, depositor, arbiter, beneficiary } = await loadFixture(deployEscrow);
             _escrow = escrow;
@@ -43,6 +45,11 @@ describe("Escrow", function () {
 
         it("should have correct beneficiary", async () => {
             expect(await _escrow.beneficiary()).is.to.eq(_beneficiary.address);
+        });
+
+        it("should deposit on deploy", async () => {
+            const balance = await ethers.provider.getBalance(_escrow.address);
+            expect(balance).is.to.eq(initialDeposit);
         });
 
     });
