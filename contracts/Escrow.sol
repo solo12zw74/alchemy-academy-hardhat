@@ -6,6 +6,7 @@ contract Escrow {
     address public beneficiary;
     address public arbiter;
     bool public isApproved;
+    event Approved(uint);
 
     constructor(address _arbiter, address _beneficiary) payable {
         depositor = msg.sender;
@@ -21,5 +22,6 @@ contract Escrow {
         (bool sent, ) = beneficiary.call{value: balance}("");
         require(sent);
         isApproved = true;
+        emit Approved(balance);
     }
 }

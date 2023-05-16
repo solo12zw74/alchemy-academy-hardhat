@@ -78,7 +78,6 @@ describe("Escrow", function () {
             await expect(_escrow.connect(_arbiter).approve()).is.rejected;
         });
 
-
         it("should approve correctly", async () => {
             const beneficiaryBalanceBefore = await ethers.provider.getBalance(_beneficiary.address);
             await _escrow.connect(_arbiter).approve();
@@ -87,7 +86,10 @@ describe("Escrow", function () {
 
             expect(contractBalance).is.to.eq(0);
             expect(beneficiaryBalanceAfter).is.greaterThan(beneficiaryBalanceBefore);
+        });
 
+        it("should emit Approved event", async () => {
+            expect(await _escrow.connect(_arbiter).approve()).is.emit(_escrow, "Approved");
         });
     });
 });
