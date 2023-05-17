@@ -23,7 +23,7 @@ async function getArrayElements(getterFn: { (arg0: PromiseOrValue<BigNumberish>,
 
 describe("Arrays", () => {
     let _arrays: Arrays;
-    before(async () => {
+    beforeEach(async () => {
         const { arrays } = await loadFixture(deployArrays);
         _arrays = arrays;
     });
@@ -39,8 +39,13 @@ describe("Arrays", () => {
         expect(await _arrays.sum([1, 1, 1])).is.to.eq(3);
     });
 
-    it("should filter evens from the input", async () => {
+    it("should filters evens from the input", async () => {
         await _arrays.filterEven([1, 2, 3, 4, 5, 6]);
         expect(await getArrayElements(_arrays.evenNumbers)).has.same.members([2, 4, 6].map(v => Number(v)));
+    });
+
+    it("should filters and returns evens from the input", async () => {
+        const actual = await _arrays.filterEvenWithReturn([1, 2, 3, 4, 5, 6]);
+        expect(actual.map(v => v.toNumber())).has.same.members([2, 4, 6].map(v => Number(v)));
     });
 });
