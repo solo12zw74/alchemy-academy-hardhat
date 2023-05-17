@@ -2,8 +2,8 @@
 pragma solidity ^0.8.9;
 
 contract Arrays {
-    function sum(uint[5] memory values) public pure returns (uint result) {
-        for (uint256 index = 0; index < 5; index++) {
+    function sum(uint[] memory values) public pure returns (uint result) {
+        for (uint256 index = 0; index < values.length; index++) {
             result += values[index];
         }
     }

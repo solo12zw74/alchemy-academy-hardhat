@@ -20,4 +20,10 @@ describe("Arrays", () => {
         const actual = await _arrays.sum([1, 2, 3, 4, 5]);
         expect(actual).is.to.eq(15);
     });
+
+    it("should sum any numbers", async () => {
+        expect(await _arrays.sum([1, 2, 3, 4, 5])).is.to.eq(15);
+        expect(await _arrays.sum([5])).is.to.eq(5);
+        expect(await _arrays.sum([1, 1, 1])).is.to.eq(3);
+    });
 });
