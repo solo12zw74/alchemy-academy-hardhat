@@ -12,9 +12,9 @@ const CHOICES = {
 async function deployContractWithStructs() {
     const ContractWithStructs = await ethers.getContractFactory("ContractWithStructs");
     const contractWithStructs = await ContractWithStructs.deploy();
-    const [owner] = await ethers.getSigners();
+    const [owner, otherAddress] = await ethers.getSigners();
 
-    return { contractWithStructs, owner };
+    return { contractWithStructs, owner, otherAddress };
 }
 
 describe("ContractWithStructs", () => {
@@ -46,6 +46,22 @@ describe("ContractWithStructs", () => {
             const vote = await contractWithStructs.createVoteInstance(CHOICES.NO);
             expect(vote.Choise).is.eq(CHOICES.NO);
             expect(vote.Voter).is.eq(owner.address);
+        });
+    });
+
+    describe("createVoteInStore", () => {
+        it("should add votes to array", async () => {
+            const { contractWithStructs, owner, otherAddress } = await loadFixture(deployContractWithStructs);
+
+            await contractWithStructs.createVoteInStore(CHOICES.NO);
+            await contractWithStructs.connect(otherAddress).createVoteInStore(CHOICES.YES);
+            const vote0 = await contractWithStructs.votes(0);
+            const vote1 = await contractWithStructs.votes(1);
+            expect(vote0.Voter).is.eq(owner.address);
+            expect(vote0.Choise).is.eq(CHOICES.NO);
+            expect(vote1.Voter).is.eq(otherAddress.address);
+            expect(vote1.Choise).is.eq(CHOICES.YES);
+
         });
     });
 });
