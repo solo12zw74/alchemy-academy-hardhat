@@ -17,4 +17,11 @@ contract ContractWithStructs {
     function createVote(Choices choice) external {
         vote = Vote(msg.sender, choice);
     }
+
+    function createVoteInstance(
+        Choices choice
+    ) external view returns (Vote memory) {
+        Vote memory result = Vote(msg.sender, choice);
+        return result;
+    }
 }

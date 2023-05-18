@@ -39,4 +39,13 @@ describe("ContractWithStructs", () => {
             expect(choice).is.eq(CHOICES.NO);
         });
     });
+    describe("createVoteInstance", () => {
+        it("should return a vote as struct", async () => {
+            const { contractWithStructs, owner } = await loadFixture(deployContractWithStructs);
+
+            const vote = await contractWithStructs.createVoteInstance(CHOICES.NO);
+            expect(vote.Choise).is.eq(CHOICES.NO);
+            expect(vote.Voter).is.eq(owner.address);
+        });
+    });
 });
