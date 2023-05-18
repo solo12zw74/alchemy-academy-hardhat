@@ -4,6 +4,10 @@ pragma solidity ^0.8.0;
 contract StackClub {
     address[] public members;
 
+    constructor() {
+        members.push(msg.sender);
+    }
+
     function addMember(address member) external {
         members.push(member);
     }
@@ -15,5 +19,9 @@ contract StackClub {
             }
         }
         return false;
+    }
+
+    function removeLastMember() external {
+        members.pop();
     }
 }
