@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 contract Party {
-    uint deposit = 0;
+    uint public deposit = 0;
     // keep track of all attendees
     mapping(address => uint) attendees;
 
